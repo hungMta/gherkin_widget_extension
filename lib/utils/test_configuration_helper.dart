@@ -15,27 +15,21 @@ extension TestConfigurationHelper on TestConfiguration {
     FeatureFileMatcher? featureFileMatcher,
     FeatureFileReader? featureFileReader,
     bool? stopAfterTestFailed,
-    int? stepMaxRetries,
-    Duration? retryDelay,
   }) {
-    return TestConfiguration(
-      features: features ?? this.features,
-      featureDefaultLanguage:
-          featureDefaultLanguage ?? this.featureDefaultLanguage,
-      tagExpression: tagExpression ?? this.tagExpression,
-      defaultTimeout: defaultTimeout ?? this.defaultTimeout,
-      order: order ?? this.order,
-      stepDefinitions: stepDefinitions ?? this.stepDefinitions,
-      customStepParameterDefinitions:
-          customStepParameterDefinitions ?? this.customStepParameterDefinitions,
-      hooks: hooks ?? this.hooks,
-      reporters: reporters ?? this.reporters,
-      createWorld: createWorld ?? this.createWorld,
-      featureFileMatcher: featureFileMatcher ?? this.featureFileMatcher,
-      featureFileReader: featureFileReader ?? this.featureFileReader,
-      stopAfterTestFailed: stopAfterTestFailed ?? this.stopAfterTestFailed,
-      stepMaxRetries: stepMaxRetries ?? this.stepMaxRetries,
-      retryDelay: retryDelay ?? this.retryDelay,
-    );
+    this.features = features ?? this.features;
+    this.featureDefaultLanguage =
+        featureDefaultLanguage ?? this.featureDefaultLanguage;
+    this.defaultTimeout = defaultTimeout ?? this.defaultTimeout;
+    this.order = order ?? this.order;
+    this.stepDefinitions = stepDefinitions ?? this.stepDefinitions;
+    this.customStepParameterDefinitions =
+        customStepParameterDefinitions ?? this.customStepParameterDefinitions;
+    this.hooks = hooks ?? this.hooks;
+    this.reporters = reporters ?? this.reporters;
+    this.createWorld = createWorld ?? this.createWorld;
+    this.featureFileMatcher = featureFileMatcher ?? this.featureFileMatcher;
+    this.featureFileReader = featureFileReader ?? this.featureFileReader;
+    this.stopAfterTestFailed = stopAfterTestFailed ?? this.stopAfterTestFailed;
+    return this;
   }
 }

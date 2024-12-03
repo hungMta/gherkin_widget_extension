@@ -3,7 +3,7 @@ import 'package:logger/logger.dart';
 
 import 'monochrome_printer.dart';
 
-class WidgetStdoutReporter implements FullReporter {
+class WidgetStdoutReporter extends StdoutReporter {
   /// https://talyian.github.io/ansicolors/
   final AnsiColor neutralColor = AnsiColor.none();
   final AnsiColor debugColor = AnsiColor.fg(7); // gray
@@ -18,73 +18,44 @@ class WidgetStdoutReporter implements FullReporter {
   Future<void> dispose() async {}
 
   @override
-  ReportActionHandler<FeatureMessage> get feature => ReportActionHandler();
+  Future<void> onScenarioStarted(StartedMessage message) {
+    logger.i(coolColor("\n${"-" * 100}\n"));
+    logger.i(coolColor(
+        '${DateTime.now()} - Running scenario: ${message.name + _getContext(message.context)}'));
+    return super.onScenarioStarted(message);
+  }
 
   @override
-  Future<void> message(String message, MessageLevel level) async {}
+  Future<void> onScenarioFinished(ScenarioFinishedMessage message) {
+    var scenarioColor = message.passed ? passColor : failColor;
+    var scenarioStatus = message.passed ? "PASSED" : "FAILED";
+    logger.i("${scenarioColor(scenarioStatus)}: Scenario ${message.name}");
+    return super.onScenarioFinished(message);
+  }
 
   @override
-  Future<void> onException(Object exception, StackTrace stackTrace) async {}
-
-  @override
-  ReportActionHandler<ScenarioMessage> get scenario => ReportActionHandler(
-        onStarted: ([message]) async {
-          logger.i(coolColor("\n${"-" * 100}\n"));
-          if (message == null) {
-            logger.i(failColor('Cannot get scenario information'));
-          } else {
-            logger.i(coolColor(
-                '${DateTime.now()} - Running scenario: ${message.name + _getContext(message.context)}'));
-          }
-        },
-        onFinished: ([message]) async {
-          if (message == null) {
-            logger.i(failColor('Cannot get scenario information'));
-          } else {
-            var scenarioColor = message.hasPassed ? passColor : failColor;
-            var scenarioStatus = message.hasPassed ? "PASSED" : "FAILED";
-            logger.i(
-                "${scenarioColor(scenarioStatus)}: Scenario ${message.name}");
-          }
-        },
-      );
-
-  @override
-  ReportActionHandler<StepMessage> get step => ReportActionHandler(
-        onFinished: ([message]) async {
-          if (message == null) {
-            logger.i(failColor('Cannot get scenario information'));
-          } else {
-            if (message.result == null) {
-              logger.i(failColor('Cannot get result scenario information'));
-            } else {
-              var stepColor =
-                  message.result!.result == StepExecutionResult.passed
-                      ? passColor
-                      : failColor;
-              String printMessage;
-              if (message.result is ErroredStepResult) {
-                var errorMessage = (message.result as ErroredStepResult);
-                printMessage = failColor(
-                    '${errorMessage.exception}\n${errorMessage.stackTrace}');
-              } else {
-                printMessage = [
-                  stepColor('  '),
-                  stepColor(_getStatePrefixIcon(message.result!.result)),
-                  stepColor(message.name),
-                  neutralColor(_getExecutionDuration(message.result!)),
-                  stepColor(_getReasonMessage(message.result!)),
-                  stepColor(_getErrorMessage(message.result!))
-                ].join((' ')).trimRight();
-              }
-              logger.i(printMessage);
-            }
-          }
-        },
-      );
-
-  @override
-  ReportActionHandler<TestMessage> get test => ReportActionHandler();
+  Future<void> onStepFinished(StepFinishedMessage message) {
+    var stepColor = message.result.result == StepExecutionResult.pass
+        ? passColor
+        : failColor;
+    String printMessage;
+    if (message.result is ErroredStepResult) {
+      var errorMessage = (message.result as ErroredStepResult);
+      printMessage =
+          failColor('${errorMessage.exception}\n${errorMessage.stackTrace}');
+    } else {
+      printMessage = [
+        stepColor('  '),
+        stepColor(_getStatePrefixIcon(message.result.result)),
+        stepColor(message.name),
+        neutralColor(_getExecutionDuration(message.result)),
+        stepColor(_getReasonMessage(message.result)),
+        stepColor(_getErrorMessage(message.result))
+      ].join((' ')).trimRight();
+    }
+    logger.i(printMessage);
+    return super.onStepFinished(message);
+  }
 
   String _getReasonMessage(StepResult stepResult) =>
       (stepResult.resultReason != null && stepResult.resultReason!.isNotEmpty)
@@ -107,7 +78,7 @@ class WidgetStdoutReporter implements FullReporter {
 
   String _getStatePrefixIcon(StepExecutionResult result) {
     switch (result) {
-      case StepExecutionResult.passed:
+      case StepExecutionResult.pass:
         return '√';
       case StepExecutionResult.error:
       case StepExecutionResult.fail:
