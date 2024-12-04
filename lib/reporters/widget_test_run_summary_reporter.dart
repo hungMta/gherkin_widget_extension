@@ -9,24 +9,24 @@ class WidgetTestRunSummaryReporter extends WidgetStdoutReporter {
       <ScenarioFinishedMessage>[];
 
   @override
-  Future<void> onScenarioFinished(ScenarioFinishedMessage message) {
+  Future<void> onScenarioFinished(ScenarioFinishedMessage message) async {
     _ranScenarios.add(message);
-    return super.onScenarioFinished(message);
   }
 
   @override
-  Future<void> onStepFinished(StepFinishedMessage message) {
+  Future<void> onStepFinished(StepFinishedMessage message) async {
     _ranSteps.add(message);
-    return super.onStepFinished(message);
   }
 
   @override
-  Future<void> onTestRunFinished() {
+  Future<void> onScenarioStarted(StartedMessage message) async {}
+
+  @override
+  Future<void> onTestRunFinished() async {
     _timer.stop();
     logger.i(_getRanScenariosSummary());
     logger.i(_getRanStepsSummary());
     logger.i('${Duration(milliseconds: _timer.elapsedMilliseconds)}\n');
-    return super.onTestRunFinished();
   }
 
   @override

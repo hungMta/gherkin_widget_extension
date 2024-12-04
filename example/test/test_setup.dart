@@ -24,7 +24,7 @@ TestConfiguration testWidgetsConfiguration({
     ..hooks = [WidgetHooks(dumpFolderPath: 'widget_tests_report_folder')]
     ..reporters = [
       WidgetStdoutReporter(),
-      // WidgetTestRunSummaryReporter(),
+      WidgetTestRunSummaryReporter(),
       XmlReporter(dirRoot: Directory.current.path),
     ]
     ..defaultTimeout = const Duration(milliseconds: 60000 * 10);

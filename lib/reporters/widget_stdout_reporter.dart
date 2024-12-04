@@ -3,7 +3,7 @@ import 'package:logger/logger.dart';
 
 import 'monochrome_printer.dart';
 
-class WidgetStdoutReporter extends StdoutReporter {
+class WidgetStdoutReporter extends Reporter {
   /// https://talyian.github.io/ansicolors/
   final AnsiColor neutralColor = AnsiColor.none();
   final AnsiColor debugColor = AnsiColor.fg(7); // gray
@@ -18,23 +18,21 @@ class WidgetStdoutReporter extends StdoutReporter {
   Future<void> dispose() async {}
 
   @override
-  Future<void> onScenarioStarted(StartedMessage message) {
+  Future<void> onScenarioStarted(StartedMessage message) async {
     logger.i(coolColor("\n${"-" * 100}\n"));
     logger.i(coolColor(
         '${DateTime.now()} - Running scenario: ${message.name + _getContext(message.context)}'));
-    return super.onScenarioStarted(message);
   }
 
   @override
-  Future<void> onScenarioFinished(ScenarioFinishedMessage message) {
+  Future<void> onScenarioFinished(ScenarioFinishedMessage message) async {
     var scenarioColor = message.passed ? passColor : failColor;
     var scenarioStatus = message.passed ? "PASSED" : "FAILED";
     logger.i("${scenarioColor(scenarioStatus)}: Scenario ${message.name}");
-    return super.onScenarioFinished(message);
   }
 
   @override
-  Future<void> onStepFinished(StepFinishedMessage message) {
+  Future<void> onStepFinished(StepFinishedMessage message) async {
     var stepColor = message.result.result == StepExecutionResult.pass
         ? passColor
         : failColor;
@@ -54,7 +52,6 @@ class WidgetStdoutReporter extends StdoutReporter {
       ].join((' ')).trimRight();
     }
     logger.i(printMessage);
-    return super.onStepFinished(message);
   }
 
   String _getReasonMessage(StepResult stepResult) =>
